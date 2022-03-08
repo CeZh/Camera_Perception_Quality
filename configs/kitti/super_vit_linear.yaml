@@ -1,0 +1,54 @@
+version: 1
+dataset_parameters:
+  dataset_name: kitti
+  image_set: 'train'
+  train_image_path: '/media/ce-zhang/Automated_Driving_Dataset/Naturalistic_Driving_Dataset/Vision_KITTI/perceptual_quality_dataset/raw_images'
+  train_label_path: '/media/ce-zhang/Automated_Driving_Dataset/Naturalistic_Driving_Dataset/Vision_KITTI/perceptual_quality_dataset/training_image_labels.json'
+  val_image_path: '/media/ce-zhang/Automated_Driving_Dataset/Naturalistic_Driving_Dataset/Vision_KITTI/perceptual_quality_dataset/raw_images'
+  val_label_path: '/media/ce-zhang/Automated_Driving_Dataset/Naturalistic_Driving_Dataset/Vision_KITTI/perceptual_quality_dataset/validation_image_labels.json'
+  shuffle: True
+  num_workers: 4
+  batch_size: 16
+  collate_fun: kitti
+  use_lds: False
+  lds_method: sqrt_inv
+  lds_ks: 5
+  lds_sigma: 2
+  max_target: 101
+
+training_parameters:
+  epoch: 50
+  loss_type: 'Huber_Loss'
+  optimizer: 'Adam'
+  log_every: 5
+  eval_loss_type: 'Mean_Absolute'
+  warm_up: False
+  cosine_decay: True
+
+model_parameters:
+  model_name: 'vit_attention'
+  img_dim: 512
+  use_superpixel: True
+  multi_scale: 5
+  img_size: 512
+  backbone: 'ViT'
+  regressor: 'MLP'
+  patch_size: 32
+  patch_dim: 1024
+  pixel_channel: 6
+  depth: 6
+  heads: 8
+  mlp_dim: 1024
+  dropout_rate: 0.1
+  dropout_rate_regressor: 0.2
+  dropout_rate_classifier: 0.2
+  class_num: 6
+  mode: 'reg'
+  regress_out_dim: 2
+superpixel_parameters:
+  segments: 500
+  sigma: 5
+  att_dim: 12
+  original_width: 1242
+  original_height: 375
+

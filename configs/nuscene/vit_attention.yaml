@@ -1,0 +1,50 @@
+version: 1
+dataset_parameters:
+  dataset_name: koniq-10k
+  image_set: 'train'
+  train_image_path: '/media/ce-zhang/Automated_Driving_Dataset/Computer_Vision_Dataset/Koniq_10k/1024x768'
+  train_label_path: '/media/ce-zhang/Automated_Driving_Dataset/Computer_Vision_Dataset/Koniq_10k'
+  val_image_path: '/media/ce-zhang/Automated_Driving_Dataset/Computer_Vision_Dataset/Koniq_10k/1024x768'
+  val_label_path: '/media/ce-zhang/Automated_Driving_Dataset/Computer_Vision_Dataset/Koniq_10k'
+  shuffle: True
+  num_workers: 4
+  batch_size: 16
+  collate_fun: bdd
+  use_lds: False
+  lds_method: sqrt_inv
+  lds_ks: 5
+  lds_sigma: 2
+  max_target: 101
+
+training_parameters:
+  epoch: 50
+  loss_type: 'Huber_Loss'
+  optimizer: 'Adam'
+  log_every: 25
+  eval_loss_type: 'Mean_Absolute'
+  warm_up: False
+  cosine_decay: True
+
+model_parameters:
+  model_name: 'vit_attention'
+  use_superpixel: False
+  multi_scale: 5
+  img_size: 512
+  backbone: 'ViT'
+  regressor: 'MLP'
+  patch_size: 32
+  patch_dim: 1024
+  depth: 4
+  heads: 8
+  mlp_dim: 4096
+  dropout_rate: 0.2
+  dropout_rate_regressor: 0.2
+  dropout_rate_classifier: 0.2
+  class_num: 4
+  mode: 'reg'
+  regress_out_dim: 2
+
+superpixel_parameters:
+  segments: 200
+  sigma: 5
+
