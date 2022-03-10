@@ -6,7 +6,9 @@ This is the official implementation of the paper [A Quality Index Metric and Met
 The proposed model is superpixel attention-based neural network, which combines superpixel and pixel features for camera-based perception quality index regression. Current model support [BDD100k](https://www.bdd100k.com/), [NuScene](https://www.nuscenes.org/), and [KITTI](http://www.cvlibs.net/datasets/kitti/) dataset. Detailed implementation and labeling can be seen under the Implementation section
 
 ![Network Architecture](/project_images/Network_Architecture.png)
-
+SPA-NET Model Architecture
+![Project Workflow](/project_images/Project_Flowchart.png)
+Camera Perception Quality Index Project Flowchart
 
 ### Citation
 ```
