@@ -225,8 +225,8 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Training for Image Perceptual Quality')
-    parser.add_argument('--configs', default='./configs/kitti/super_vit_linear.yaml', help = 'Configuration file for dataset')
-    parser.add_argument('--run', default='runs/kitti_dataset', help='Running directory for model training')
+    parser.add_argument('--configs', default='./configs/bdd100k/super_vit_linear.yaml', help = 'Configuration file for dataset')
+    parser.add_argument('--run', default='runs/bdd_dataset', help='Running directory for model training')
     parser.add_argument('--running_name', default='super_vit', type = str, help='Running model features')
     parser.add_argument('--super_att_dim', default=18, type= int, help='Super Pixel Module Feature Dimension')
     parser.add_argument('--depth', default = 6, type = int, help='Pixel and Super Pixel Attention Layer Depth')

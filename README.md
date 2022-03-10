@@ -53,7 +53,7 @@ The model can be trained under BDD100K, NuScene, and KITTI datasets. The corresp
 ### Example
 1. Go to the BDD dataset's configuration file under ```configs/bdd100k/super_vit_linear.yaml```
 2. Change the ```train_image_path, train_label_path, val_image_path, val_label_path``` to the desired directory
-3. run ```train.py --configs ./configs/bdd100k/super_vit_linear.yaml --file_dir ./demo_image/img1.jpg``
+3. run ```train.py --configs ./configs/bdd100k/super_vit_linear.yaml --file_dir ./demo_image/img1.jpg```
 
 
 ## License

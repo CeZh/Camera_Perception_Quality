@@ -1,7 +1,5 @@
 import torch
 import argparse, os, yaml, json
-from core.builder.build_dataset import register_dataset
-from core.builder.build_loss import loss_function
 from core.builder.build_model import Perceptual_Quality_Estimation
 from configs.configs import configuration_update
 from tqdm import tqdm, trange
@@ -10,10 +8,8 @@ import logging.config
 import time
 from time import time, ctime
 import warnings
-import numpy as np
 from sklearn import metrics
 from scipy import stats
-import random
 import cv2
 from PIL import Image
 from utils import image_compression
@@ -118,10 +114,7 @@ def regress_acc(results_summary):
     return results_summary
 
 def main(args):
-    if args.video:
-        files = os.listdir(args.file_dir)
-    else:
-        files = os.listdir(args.file_dir)
+    files = os.listdir(args.file_dir)
     with open(args.configs, 'r') as yamlfile:
         configs = yaml.load(yamlfile, Loader=yaml.FullLoader)
 
@@ -129,30 +122,31 @@ def main(args):
 
     # check gpu availability
     if torch.cuda.is_available:
-        device = torch.device('cuda:0')
+        device = torch.device('cpu')
     else:
         device = torch.device('cpu')
 
-    log_path = args.log_path
+    log_path = 'demo_logger'
+    if not os.path.exists(log_path):
+        os.mkdir(log_path)
     model_path = args.model_path
     logging.basicConfig(filename=os.path.join(log_path, str(configs['dataset_parameters']['dataset_name']) + '_demo.log'),
                         filemode='w',
                         format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
                         datefmt='%Y-%m-%d %H:%M:%S',
                         level='NOTSET')
-    # logging.config.dictConfig(configs)
     logger = logging.getLogger(__name__)
     logger.info('start evaluating...')
     logger.info(['Running Date: ', ctime(time())])
-    logger.info(['Multi-Scale:', args.scale])
 
 
     model = Perceptual_Quality_Estimation(configs)
-    model = model.to(device)
+
 
     model.load_state_dict(torch.load(os.path.join(args.model_path, 'best_loss_total.pt')))
     model.eval()
     iter_val = 0
+    model = model.to(device)
 
     results_summary = {'output': [],
                        'names': []}
@@ -161,9 +155,9 @@ def main(args):
             for idx, content in enumerate(files):
                 image = pil_loader(os.path.join(args.file_dir, content))
                 image = image_compression.transform_val(image, 512, super_pixel=configs['superpixel_parameters'])
-                super_pixel = image['x'].to('cuda')
-                super_pos = image['pos'].to('cuda')
-                output = model(image['img_super'].unsqueeze(0).to('cuda'), super_pixel=super_pixel.unsqueeze(0), super_pos=super_pos)
+                super_pixel = image['x'].to(device)
+                super_pos = image['pos'].to(device)
+                output = model(image['img_super'].unsqueeze(0).to(device), super_pixel=super_pixel.unsqueeze(0).to(device), super_pos=super_pos.unsqueeze(0).to(device))
                 # output = model(image.unsqueeze(0).to('cuda'))
                 output = output['regress']
                 img = cv2.imread(os.path.join(args.file_dir, content))
@@ -173,9 +167,6 @@ def main(args):
                 if not os.path.exists(os.path.split(save_name)[0]):
                     os.mkdir(os.path.split(save_name)[0])
                 cv2.imwrite(save_name, img)
-                # cv2.imshow('image', img)
-                # cv2.waitKey()
-                # cv2.destroyAllWindows()
                 pbar.set_postfix(perceptual_quality=output.item())
                 pbar.n += 1
 
@@ -185,14 +176,9 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Training for Image Perceptual Quality')
-    parser.add_argument('--configs', default='./configs/bdd100k/super_vit_linear_superdim_12.yaml', help='Configuration file for dataset')
-    parser.add_argument('--log_path', default='./runs/super_vit_base/logging_files')
-    parser.add_argument('--model_path', default = './runs/super_vit_base/models')
-    parser.add_argument('--scale', default = 3, type = int, help='Multi-Scale Value')
-    parser.add_argument('--dropout_rate', default=0.2, type=float, help='Dropout rate for mlp head')
-    parser.add_argument('--attention_mlp', default=4096, type=int, help='Attention Module Linear Dimension')
-    parser.add_argument('--file_dir', default= '/media/ce-zhang/Automated_Driving_Dataset/Customize_Dataset/ASIM_Dataset/GoPro_Version/Dec_13_Loop_Afternoon_Sunny/Images')
-    parser.add_argument('--video', default=False, type=bool, help='Whether the input files are video or image')
+    parser.add_argument('--configs', default='./configs/bdd100k/super_vit_linear.yaml', help='Configuration file for dataset')
+    parser.add_argument('--model_path', default = './model_weights')
+    parser.add_argument('--file_dir', default= './demo_images')
     parser.add_argument('--save_folder', default='Dec_13_Loop_Afternoon_Sunny', type=str, help='Folder name')
     args = parser.parse_args()
     main(args)
