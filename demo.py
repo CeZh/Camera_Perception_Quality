@@ -8,8 +8,6 @@ import logging.config
 import time
 from time import time, ctime
 import warnings
-from sklearn import metrics
-from scipy import stats
 import cv2
 from PIL import Image
 from utils import image_compression
