@@ -49,9 +49,14 @@ def main(args):
 
 
     model = Perceptual_Quality_Estimation(configs)
-
-
-    model.load_state_dict(torch.load(os.path.join(args.model_path, 'best_loss_total.pt')))
+    if args.dataset == 'bdd':
+        model.load_state_dict(torch.load(os.path.join(args.model_path, 'best_loss_total.pt')))
+    elif args.dataset == 'kitti':
+        model.load_state_dict(torch.load(os.path.join(args.model_path, 'best_loss_total.pt')))
+    elif args.dataset == 'nuscene':
+        model.load_state_dict(torch.load(os.path.join(args.model_path, 'best_loss_total.pt')))
+    else:
+        assert False, 'Model Name Wrong! Currently Only Support bdd, kitti, and nuscene'
     model.eval()
     model = model.to(device)
 
@@ -59,13 +64,15 @@ def main(args):
         with trange(len(files), unit="iteration", desc='iteration ' + str(iter)) as pbar:
             for idx, content in enumerate(files):
                 image = pil_loader(os.path.join(args.file_dir, content))
-                image = image.resize([configs['superpixel_parameters']['original_width'],
-                                      configs['superpixel_parameters']['original_height']], Image.ANTIALIAS)
-                image = image_compression.transform_val(image, 512, super_pixel=configs['superpixel_parameters'])
-                super_pixel = image['x'].to(device)
-                super_pos = image['pos'].to(device)
-                output = model(image['img_super'].unsqueeze(0).to(device), super_pixel=super_pixel.unsqueeze(0).to(device), super_pos=super_pos.unsqueeze(0).to(device))
-                # output = model(image.unsqueeze(0).to('cuda'))
+                if 'super' in args.configs:
+                    image = image.resize([configs['superpixel_parameters']['original_width'],
+                                          configs['superpixel_parameters']['original_height']], Image.ANTIALIAS)
+                    image = image_compression.transform_val(image, 512, super_pixel=configs['superpixel_parameters'])
+                    super_pixel = image['x'].to(device)
+                    super_pos = image['pos'].to(device)
+                    output = model(image['img_super'].unsqueeze(0).to(device), super_pixel=super_pixel.unsqueeze(0).to(device), super_pos=super_pos.unsqueeze(0).to(device))
+                else:
+                    output = model(image.unsqueeze(0).to('cuda'))
                 output = output['regress']
                 img = cv2.imread(os.path.join(args.file_dir, content))
                 img = cv2.putText(img, 'Perceptual Quality: ', org=(25, 50), color = (125, 0, 125), thickness=2, fontScale=2, fontFace=cv2.LINE_AA)
@@ -82,6 +89,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Training for Image Perceptual Quality')
     parser.add_argument('--configs', default='./configs/bdd100k/super_vit_linear.yaml', help='Configuration file for dataset')
     parser.add_argument('--model_path', default = './model_weights')
+    parser.add_argument('--dataset', default='bdd', help='Currently support bdd, kitti, and nuscene')
     parser.add_argument('--file_dir', default= './demo_images')
     parser.add_argument('--output', default='demo_outputs', type=str, help='Folder name')
     args = parser.parse_args()
