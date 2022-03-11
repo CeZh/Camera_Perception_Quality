@@ -1,0 +1,4 @@
+#!/bin/bash
+
+% Download the NuScene Dataset Checkpoint Model
+wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=10s1zgoqVj25jUuNLwJPrDtYWrX29KPfD' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=10s1zgoqVj25jUuNLwJPrDtYWrX29KPfD" -O nuscene_vit_model.pt && rm -rf /tmp/cookies.txt
