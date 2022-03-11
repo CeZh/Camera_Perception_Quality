@@ -48,7 +48,7 @@ model_parameters:
 superpixel_parameters:
   segments: 500
   sigma: 5
-  att_dim: 12
+  att_dim: 18
   original_width: 1600
   original_height: 900
 
