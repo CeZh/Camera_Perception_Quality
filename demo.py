@@ -122,15 +122,17 @@ def main(args):
 
     # check gpu availability
     if torch.cuda.is_available:
-        device = torch.device('cpu')
+        device = torch.device('cuda:0')
     else:
         device = torch.device('cpu')
 
     log_path = 'demo_logger'
-    if not os.path.exists(log_path):
-        os.mkdir(log_path)
+    if not os.path.exists(args.output):
+        os.mkdir(args.output)
+    if not os.path.exists(os.path.join(args.output, log_path)):
+        os.mkdir(os.path.join(args.output, log_path))
     model_path = args.model_path
-    logging.basicConfig(filename=os.path.join(log_path, str(configs['dataset_parameters']['dataset_name']) + '_demo.log'),
+    logging.basicConfig(filename=os.path.join(args.output, log_path, str(configs['dataset_parameters']['dataset_name']) + '_demo.log'),
                         filemode='w',
                         format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
                         datefmt='%Y-%m-%d %H:%M:%S',
@@ -154,6 +156,8 @@ def main(args):
         with trange(len(files), unit="iteration", desc='iteration ' + str(iter)) as pbar:
             for idx, content in enumerate(files):
                 image = pil_loader(os.path.join(args.file_dir, content))
+                image = image.resize([configs['superpixel_parameters']['original_width'],
+                                      configs['superpixel_parameters']['original_height']], Image.ANTIALIAS)
                 image = image_compression.transform_val(image, 512, super_pixel=configs['superpixel_parameters'])
                 super_pixel = image['x'].to(device)
                 super_pos = image['pos'].to(device)
@@ -163,7 +167,7 @@ def main(args):
                 img = cv2.imread(os.path.join(args.file_dir, content))
                 img = cv2.putText(img, 'Perceptual Quality: ', org=(25, 50), color = (125, 0, 125), thickness=2, fontScale=2, fontFace=cv2.LINE_AA)
                 img = cv2.putText(img, str(output.item()), org = (800, 50), color = (125, 0, 125), thickness=2, fontScale=2, fontFace=cv2.LINE_AA)
-                save_name = os.path.join(args.model_path, args.save_folder, content)
+                save_name = os.path.join(args.output, content)
                 if not os.path.exists(os.path.split(save_name)[0]):
                     os.mkdir(os.path.split(save_name)[0])
                 cv2.imwrite(save_name, img)
@@ -179,6 +183,6 @@ if __name__ == '__main__':
     parser.add_argument('--configs', default='./configs/bdd100k/super_vit_linear.yaml', help='Configuration file for dataset')
     parser.add_argument('--model_path', default = './model_weights')
     parser.add_argument('--file_dir', default= './demo_images')
-    parser.add_argument('--save_folder', default='Dec_13_Loop_Afternoon_Sunny', type=str, help='Folder name')
+    parser.add_argument('--output', default='demo_outputs', type=str, help='Folder name')
     args = parser.parse_args()
     main(args)
