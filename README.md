@@ -40,7 +40,7 @@ pip install -r requirements.txt
 # Implementation
 The implementation of this project contains a demo module and a training module
 ## Demo
-The pre-trained models are available [here]() (Google Drive). Run ``` demp.py ``` with the selection of the desired dataset.
+The pre-trained models are available [here](https://drive.google.com/drive/folders/11i3vIhq1Xhe2tIgEBrQTtan49h6-Kj4g?usp=sharing) (Google Drive). Run ``` demp.py ``` with the selection of the desired dataset.
 ### Example (BDD100k Dataset)
 
 1. Go to the BDD dataset's configuration file under ```configs/bdd100k/super_vit_linear.yaml```
@@ -48,7 +48,7 @@ The pre-trained models are available [here]() (Google Drive). Run ``` demp.py ``
 3. run ```demo.py --configs ./configs/bdd100k/super_vit_linear.yaml --file_dir ./demo_image/img1.jpg```
 
 ## Training
-The model can be trained under BDD100K, NuScene, and KITTI datasets. The corresponding labels for each datasets are [here]()
+The model can be trained under BDD100K, NuScene, and KITTI datasets. The corresponding labels for each datasets are [here](https://drive.google.com/drive/folders/13WnUMU37wEerasEczFGrfrbtDqjPDyaS?usp=sharing)
 
 ### Example
 1. Go to the BDD dataset's configuration file under ```configs/bdd100k/super_vit_linear.yaml```
