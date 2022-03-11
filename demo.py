@@ -37,7 +37,7 @@ def main(args):
         os.mkdir(args.output)
     if not os.path.exists(os.path.join(args.output, log_path)):
         os.mkdir(os.path.join(args.output, log_path))
-    model_path = args.model_path
+
     logging.basicConfig(filename=os.path.join(args.output, log_path, str(configs['dataset_parameters']['dataset_name']) + '_demo.log'),
                         filemode='w',
                         format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
@@ -53,7 +53,6 @@ def main(args):
 
     model.load_state_dict(torch.load(os.path.join(args.model_path, 'best_loss_total.pt')))
     model.eval()
-    iter_val = 0
     model = model.to(device)
 
     with torch.no_grad():
