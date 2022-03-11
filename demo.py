@@ -21,98 +21,6 @@ def pil_loader(path):
         img = Image.open(f)
         return img.convert('RGB')
 
-def loss_cal(mode, output, results_summary, eval_loss_functions, **kwargs):
-    if mode == 'reg':
-        if kwargs.get('lds') == True and kwargs['lds']:
-            reg_iou_loss = eval_loss_functions['regress_iou_loss'](output['regress'].squeeze()[0],
-                                                                   kwargs['regress_label_iou'], kwargs['weights'][:, 0])
-            reg_prob_loss = eval_loss_functions['regress_prob_loss'](output['regress'].squeeze()[1],
-                                                                     kwargs['regress_label_prob'], kwargs['weights'][:, 1])
-        else:
-            reg_iou_loss = eval_loss_functions['regress_iou_loss'](output['regress'].squeeze()[0],
-                                                                   kwargs['regress_label_iou'])
-            reg_prob_loss = eval_loss_functions['regress_prob_loss'](output['regress'].squeeze()[1],
-                                                                     kwargs['regress_label_prob'])
-        reg_iou_loss_MAE = eval_loss_functions['regress_iou_loss_eval'](output['regress'].squeeze()[0],
-                                                                        kwargs['regress_label_iou'])
-        reg_prob_loss_MAE = eval_loss_functions['regress_prob_loss_eval'](output['regress'].squeeze()[1],
-                                                                          kwargs['regress_label_prob'])
-        results_summary['regress_iou_loss'].append(reg_iou_loss.item())
-        results_summary['regress_prob_loss'].append(reg_prob_loss.item())
-        results_summary['regress_iou_loss_MAE'].append(reg_iou_loss_MAE.item())
-        results_summary['regress_prob_loss_MAE'].append(reg_prob_loss_MAE.item())
-        results_summary['output_regress_iou'].append(output['regress'].squeeze()[0].item())
-        results_summary['output_regress_prob'].append(output['regress'].squeeze()[1].item())
-        results_summary['gt_regress_iou'].append(kwargs['regress_label_iou'].item())
-        results_summary['gt_regress_prob'].append(kwargs['regress_label_prob'].item())
-    elif mode == 'cls':
-        cls_iou_loss = eval_loss_functions['classes_iou_loss'](output['class'][0], kwargs['class_label_iou'])
-        cls_prob_loss = eval_loss_functions['classes_prob_loss'](output['class'][1], kwargs['class_label_prob'])
-        _, output_class_iou = torch.max(output['class'][0], 1)
-        _, output_class_prob = torch.max(output['class'][1], 1)
-        results_summary['class_iou_loss'].append(cls_iou_loss.item())
-        results_summary['class_prob_loss'].append(cls_prob_loss.item())
-        results_summary['output_class_iou'].append(output_class_iou.item())
-        results_summary['output_class_prob'].append(output_class_prob.item())
-        results_summary['gt_class_iou'].append(kwargs['class_label_iou'].item())
-        results_summary['gt_class_prob'].append(kwargs['class_label_prob'].item())
-    else:
-        reg_iou_loss = eval_loss_functions['regress_iou_loss'](output['regress'].squeeze()[0], kwargs['regress_label_iou'])
-        reg_prob_loss = eval_loss_functions['regress_prob_loss'](output['regress'].squeeze()[1], kwargs['regress_label_prob'])
-        reg_iou_loss_MAE = eval_loss_functions['regress_iou_loss_eval'](output['regress'].squeeze()[0],
-                                                                        kwargs['regress_label_iou'])
-        reg_prob_loss_MAE = eval_loss_functions['regress_prob_loss_eval'](output['regress'].squeeze()[1],
-                                                                          kwargs['regress_label_prob'])
-
-        cls_iou_loss = eval_loss_functions['classes_iou_loss'](output['class'][0], kwargs['class_label_iou'])
-        cls_prob_loss = eval_loss_functions['classes_prob_loss'](output['class'][1], kwargs['class_label_prob'])
-        _, output_class_iou = torch.max(output['class'][0], 1)
-        _, output_class_prob = torch.max(output['class'][1], 1)
-
-
-        results_summary['regress_iou_loss'].append(reg_iou_loss.item())
-        results_summary['regress_prob_loss'].append(reg_prob_loss.item())
-        results_summary['regress_iou_loss_MAE'].append(reg_iou_loss_MAE.item())
-        results_summary['regress_prob_loss_MAE'].append(reg_prob_loss_MAE.item())
-        results_summary['output_regress_iou'].append(output['regress'].squeeze()[0].item())
-        results_summary['output_regress_prob'].append(output['regress'].squeeze()[1].item())
-        results_summary['gt_regress_iou'].append(kwargs['regress_label_iou'].item())
-        results_summary['gt_regress_prob'].append(kwargs['regress_label_prob'].item())
-
-
-        results_summary['class_iou_loss'].append(cls_iou_loss.item())
-        results_summary['class_prob_loss'].append(cls_prob_loss.item())
-        results_summary['output_class_iou'].append(output_class_iou.item())
-        results_summary['output_class_prob'].append(output_class_prob.item())
-        results_summary['gt_class_iou'].append(kwargs['class_label_iou'].item())
-        results_summary['gt_class_prob'].append(kwargs['class_label_prob'].item())
-
-    return results_summary
-
-def class_acc(results_summary):
-    pred_iou, pred_prob = results_summary['output_class_iou'], results_summary['output_class_prob']
-    gt_iou, gt_prob = results_summary['gt_class_iou'], results_summary['gt_class_prob']
-
-
-    iou_acc = metrics.balanced_accuracy_score(gt_iou, pred_iou)
-    prob_acc = metrics.balanced_accuracy_score(gt_prob, pred_prob)
-    accuracy = [iou_acc, prob_acc]
-    results_summary['iou_accuracy'] = iou_acc
-    results_summary['prob_accuracy'] = prob_acc
-    return results_summary, accuracy
-
-def regress_acc(results_summary):
-    reg_iou, reg_prob = results_summary['output_regress_iou'], results_summary['output_regress_prob']
-    gt_regress_iou, gt_regress_prob = results_summary['gt_regress_iou'], results_summary['gt_regress_prob']
-    results_summary['srcc_iou'], _ = stats.spearmanr(reg_iou, gt_regress_iou)
-    results_summary['plcc_iou'], _ = stats.pearsonr(reg_iou, gt_regress_iou)
-    results_summary['srcc_prob'], _ = stats.spearmanr(reg_prob, gt_regress_prob)
-    results_summary['plcc_prob'], _ = stats.pearsonr(reg_prob, gt_regress_prob)
-    results_summary['r2_iou'] = metrics.r2_score(reg_iou, gt_regress_iou)
-    results_summary['r2_prob'] = metrics.r2_score(reg_prob, gt_regress_prob)
-
-    return results_summary
-
 def main(args):
     files = os.listdir(args.file_dir)
     with open(args.configs, 'r') as yamlfile:
@@ -150,8 +58,6 @@ def main(args):
     iter_val = 0
     model = model.to(device)
 
-    results_summary = {'output': [],
-                       'names': []}
     with torch.no_grad():
         with trange(len(files), unit="iteration", desc='iteration ' + str(iter)) as pbar:
             for idx, content in enumerate(files):
@@ -173,9 +79,6 @@ def main(args):
                 cv2.imwrite(save_name, img)
                 pbar.set_postfix(perceptual_quality=output.item())
                 pbar.n += 1
-
-        with open(os.path.join(model_path, 'demo_results.json'), 'w') as f:
-            json.dump(results_summary, f)
 
 
 if __name__ == '__main__':
