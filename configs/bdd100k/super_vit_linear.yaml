@@ -2,10 +2,10 @@ version: 1
 dataset_parameters:
   dataset_name: bdd100k
   image_set: 'train'
-  train_image_path: '/work/zce/datasets/bdd_perceptual_quality/raw_images'
-  train_label_path: '/work/zce/datasets/bdd_perceptual_quality/training_image_labels.json'
-  val_image_path: '/work/zce/datasets/bdd_perceptual_quality/raw_images'
-  val_label_path: '/work/zce/datasets/bdd_perceptual_quality/validation_image_labels.json'
+  train_image_path: '/media/ce-zhang/Automated_Driving_Dataset/Naturalistic_Driving_Dataset/bdd100k/images/perceptual_quality_dataset/raw_images'
+  train_label_path: '/media/ce-zhang/Automated_Driving_Dataset/Naturalistic_Driving_Dataset/bdd100k/labels/perceptual_quality_dataset/training_image_labels.json'
+  val_image_path: '/media/ce-zhang/Automated_Driving_Dataset/Naturalistic_Driving_Dataset/bdd100k/images/perceptual_quality_dataset/raw_images'
+  val_label_path: '/media/ce-zhang/Automated_Driving_Dataset/Naturalistic_Driving_Dataset/bdd100k/labels/perceptual_quality_dataset/validation_image_labels.json'
   shuffle: True
   num_workers: 4
   batch_size: 16
